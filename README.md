@@ -1,92 +1,51 @@
-# terraform-azurerm-flex-mysql
+# Terraform for Azure Managed Database MySQL Flexible Server
 
-Terraform module to deploy a managed MySQL instance on Azure (Mirrored to public GC Accelerators)
+Creates a MySQL instance using the Azure Managed Database for MySQL Flexible Server.
 
-## Getting started
+## Security Controls
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- TBD
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Dependencies
 
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.k8s.cloud.statcan.ca/managed-databases/terraform-azurerm-flex-mysql.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.k8s.cloud.statcan.ca/managed-databases/terraform-azurerm-flex-mysql/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+- Terraform v0.14.x +
+- Terraform AzureRM Provider 2.5 +
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Examples for this module along with various configurations can be found in the [examples/](examples/) folder.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Variables
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+| Name                   | Type             | Default                | Required | Description                                                                                                        |
+| ---------------------- | ---------------- | ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| administrator_login    | string           | n/a                    | yes      | The Administrator Login for the MySQL Flexible Server.                                                        |
+| administrator_password | string           | n/a                    | yes      | The Password associated with the administrator_login for the MySQL Flexible Server.                           |
+| databases              | map(map(string)) | n/a                    | yes      | The name, collation, and charset of the MySQL database(s). (defaults: charset='utf8', collation='en_US.utf8') |
+| diagnostics            | object()         | null                   | no       | Diagnostic settings for those resources that support it.                                                           |
+| ip_rules               | list             | n/a                    | yes      | List of public IP or IP ranges in CIDR Format.                                                                     |
+| firewall_rules         | list             | n/a                    | yes      | Specifies the Start IP Address associated with this Firewall Rule.                                                 |
+| location               | string           | `"canadacentral"`      | no       | Specifies the supported Azure location where the resource exists.                                                  |
+| name                   | string           | n/a                    | yes      | The name of the MySQL Flexible Server.                                                                        |
+| mysql_version          | string           | `"8.0.21"`                 | no       | The version of the MySQL Flexible Server.                                                                     |
+| resource_group         | string           | n/a                    | yes      | The name of the resource group in which to create the MySQL Flexible Server.                                  |
+| sku_name               | string           | `"GP_Standard_D4s_v3"` | no       | Specifies the SKU Name for this MySQL Flexible Server.                                                        |
+| storagesize_mb         | string           | `"640000"`             | no       | Specifies the version of MySQL to use.                                                                        |
+| geo_redundant_backup_enabled         | bool           | `"true"`             | no       | Specifies if Geo-Redundant backup is enabled on the MySQL Flexible Server.                                                                        |
+| tags                   | map              | `"<map>"`              | no       | A mapping of tags to assign to the resource.                                                                       |
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Variables (Advanced)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+| Name                         | Type   | Default             | Required | Description                                                                                            |
+| ---------------------------- | ------ | ------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| kv_pointer_enable            | string | `"false"`           | no       | Flag kv_pointer_enable can either be `true` (state from key vault), or `false` (state from terraform). |
+| kv_pointer_name              | string | null                | no       | The key vault name to be used when kv_pointer_enable is set to `true`.                                 |
+| kv_workflow_rg               | string | null                | no       | The key vault resource group to be used when kv_pointer_enable is set to `true`.                       |
+| kv_pointer_sqladmin_password | string | null                | no       | The sqladmin password to be looked up in key vault when kv_pointer_enable is set to `true`."           |
+| subnet_id                      | string | null                | no       | The subnet where you want the database created. The subnet must be delegated to the Microsoft.DBforMySQL/flexibleServers service.                |
+| private_dns_zone_id                  | string | null                | no       | The ID of the private DNS zone to create the MySQL Flexible Server. The private DNS zone must end with the suffix .mysql.database.azure.com.                        |
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## History
 
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+| Date     | Release | Change                                                        |
+| -------- | ------- | ------------------------------------------------------------- |
