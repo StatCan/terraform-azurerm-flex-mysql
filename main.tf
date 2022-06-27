@@ -9,8 +9,8 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   administrator_login    = var.administrator_login
   administrator_password = (var.kv_pointer_enable && length(data.azurerm_key_vault_secret.pointer_sqladmin_password) > 0) ? data.azurerm_key_vault_secret.pointer_sqladmin_password[0].value : var.administrator_password
 
-  sku_name   = var.sku_name
-  version    = var.mysql_version
+  sku_name = var.sku_name
+  version  = var.mysql_version
 
   storage {
     auto_grow_enabled = true
@@ -31,13 +31,13 @@ resource "azurerm_mysql_flexible_server" "mysql" {
 }
 
 resource "azurerm_mysql_flexible_database" "mysql" {
-  for_each    = var.databases
+  for_each            = var.databases
   server_name         = azurerm_mysql_flexible_server.mysql.name
   resource_group_name = var.resource_group
-  
-  name        = each.key
-  charset     = lookup(each.value, "charset", "utf8")
-  collation   = lookup(each.value, "collation", "utf8_unicode_ci")
+
+  name      = each.key
+  charset   = lookup(each.value, "charset", "utf8")
+  collation = lookup(each.value, "collation", "utf8_unicode_ci")
 }
 
 #########################################################################################
@@ -45,7 +45,7 @@ resource "azurerm_mysql_flexible_database" "mysql" {
 #########################################################################################
 
 resource "azurerm_mysql_flexible_server_firewall_rule" "mysql" {
-  for_each        = toset(var.firewall_rules)
+  for_each            = toset(var.firewall_rules)
   server_name         = azurerm_mysql_flexible_server.mysql.name
   resource_group_name = var.resource_group
 
