@@ -1,10 +1,7 @@
-data "azurerm_client_config" "current" {}
 
-######################################################################
-# kv_pointer_enable (pointers in key vault for secrets state)
-# => ``true` then state from key vault is used for creation
-# => ``false` then state from terraform is used for creation (default)
-######################################################################
+# Data Sources
+
+data "azurerm_client_config" "current" {}
 
 data "azurerm_key_vault" "pointer" {
   count = var.kv_pointer_enable ? 1 : 0
@@ -18,4 +15,10 @@ data "azurerm_key_vault_secret" "pointer_sqladmin_password" {
 
   name         = var.kv_pointer_sqladmin_password
   key_vault_id = data.azurerm_key_vault.pointer[count.index].id
+}
+
+data "azurerm_monitor_diagnostic_categories" "mysql_server" {
+  count = (var.diagnostics != null) ? 1 : 0
+
+  resource_id = azurerm_mysql_flexible_server.mysql.id
 }

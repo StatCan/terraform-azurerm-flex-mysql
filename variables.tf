@@ -1,4 +1,8 @@
-# Server
+# Variables
+
+###############
+### Server ###
+###############
 
 variable "administrator_login" {
   description = "(Required) The Administrator Login for the MySQL Flexible Server."
@@ -6,22 +10,12 @@ variable "administrator_login" {
 
 variable "administrator_password" {
   description = "(Required) The Password associated with the administrator_login for the MySQL Flexible Server."
+  sensitive   = true
 }
 
 variable "databases" {
   type        = map(map(string))
-  description = "(Required) The name, collation, and charset of the MySQL database(s). (defaults: charset='utf8', collation='en_US.utf8')"
-}
-
-variable "diagnostics" {
-  description = "Diagnostic settings for those resources that support it."
-  type = object({
-    destination   = string
-    eventhub_name = string
-    logs          = list(string)
-    metrics       = list(string)
-  })
-  default = null
+  description = "(Required) The name, collation, and charset of the MySQL database(s). (defaults: charset='utf8', collation='utf8_unicode_ci')"
 }
 
 variable "ip_rules" {
@@ -37,7 +31,7 @@ variable "firewall_rules" {
 variable "geo_redundant_backup_enabled" {
   description = "(Optional) Is Geo-Redundant backup enabled on the PostgreSQL Flexible Server."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "location" {
@@ -60,12 +54,16 @@ variable "resource_group" {
 
 variable "sku_name" {
   description = "(Required) Specifies the SKU Name for this MySQL Flexible Server."
-  default     = "GP_Standard_D4s_v3"
+  default     = "GP_Standard_D4ds_v4"
 }
 
 variable "storagesize_gb" {
   description = "(Required) Specifies the version of MySQL to use."
-  default     = 20
+  default     = 128
+}
+
+variable "iops" {
+  description = "(Optional) The storage IOPS for the MySQL Flexible Server."
 }
 
 variable "tags" {
@@ -75,6 +73,47 @@ variable "tags" {
     environment : "dev"
   }
 }
+
+##################
+### Networking ###
+##################
+
+variable "subnet_id" {
+  description = "The subnet where you want the database created. The subnet must be delegated to Microsoft.DBforMySQL/flexibleServers."
+  type        = string
+  default     = null
+}
+
+variable "private_dns_zone_id" {
+  description = "The ID of the private DNS zone to create the MySQL Flexible Server. The private DNS zone must end with the suffix .mysql.database.azure.com."
+  type        = string
+  default     = null
+}
+
+###############
+### Logging ###
+###############
+
+variable "diagnostics" {
+  description = "Diagnostic settings for those resources that support it."
+  type = object({
+    destination   = string
+    eventhub_name = string
+    logs          = list(string)
+    metrics       = list(string)
+  })
+  default = null
+}
+
+variable "create_log_sa" {
+  description = "(Optional) Creates a storage account to be used for diagnostics logging of the PostgreSQL database created if the variable is set to `true`."
+  type        = bool
+  default     = false
+}
+
+##################
+### KV Pointer ###
+##################
 
 ######################################################################
 # kv_pointer_enable (pointers in key vault for secrets state)
@@ -102,29 +141,13 @@ variable "kv_pointer_sqladmin_password" {
   default     = null
 }
 
-#########################################################
-# Virtual Network Injection 
-#########################################################
-
-variable "subnet_id" {
-  description = "The subnet where you want the database created. The subnet must be delegated to Microsoft.DBforMySQL/flexibleServers."
-  type        = string
-  default     = null
-}
-
-variable "private_dns_zone_id" {
-  description = "The ID of the private DNS zone to create the MySQL Flexible Server. The private DNS zone must end with the suffix .mysql.database.azure.com."
-  type        = string
-  default     = null
-}
-
-#########################################################
-# Parameters
-#########################################################
+##################
+### Parameters ###
+##################
 
 variable "innodb_buffer_pool_size" {
   description = "(Optional) The size in bytes of the buffer pool, the memory area where InnoDB caches table and index data."
-  default     = 16106127360
+  default     = 12884901888
 }
 
 variable "max_allowed_packet" {
@@ -132,37 +155,12 @@ variable "max_allowed_packet" {
   default     = 536870912
 }
 
-variable "query_store_capture_interval" {
-  description = "(Optional) The query store capture interval in minutes. Allows to specify the interval in which the query metrics are aggregated."
-  default     = 15
-}
-
-variable "query_store_capture_mode" {
-  description = "(Optional) The query store capture mode, NONE means do not capture any statements."
-  default     = "ALL"
-}
-
-variable "query_store_capture_utility_queries" {
-  description = "(Optional) Turning ON or OFF to capture all the utility queries that is executing in the system."
-  default     = "YES"
-}
-
-variable "query_store_retention_period_in_days" {
-  description = "(Optional) The query store capture interval in minutes. Allows to specify the interval in which the query metrics are aggregated."
-  default     = 7
-}
-
 variable "table_definition_cache" {
-  description = "(Optional) The number of table definitions (from .frm files) that can be stored in the definition cache."
+  description = "(Optional) The size of the table_definition_cache."
   default     = 5000
 }
 
 variable "table_open_cache" {
-  description = "(Optional) The number of open tables for all threads."
+  description = "(Optional) The size of the table_open_cache."
   default     = 5000
-}
-
-variable "redirect_enabled" {
-  description = "(Optional) Indicate server support redirection."
-  default     = "OFF"
 }

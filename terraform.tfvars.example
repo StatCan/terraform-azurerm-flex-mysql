@@ -1,17 +1,30 @@
-name = "pgsqlservername"
+name = "mysqlservername"
 databases = {
-  psqlservername1 = { collation = "en_US.utf8" }
+  mysqlservername1 = { charset = "utf8", collation = "utf8_unicode_ci" }
 }
 
-administrator_login    = "pgsqladmin"
-administrator_password = "pgsql1313"
+administrator_login    = "mysqladmin"
+administrator_password = "mysql1313"
 
-sku_name       = "GP_Standard_D4s_v3"
-pgsql_version  = "13"
-storagesize_mb = 262144
+sku_name       = "GP_Standard_D4ds_v4"
+mysql_version  = "8.0.21"
+storagesize_gb = 512
+iops           = 4000
 
 location       = "canadacentral"
 resource_group = "XX-XXXX-XXXX-XXX-XXX"
 
 ip_rules       = []
 firewall_rules = []
+
+diagnostics = {
+  destination   = ""
+  eventhub_name = ""
+  logs          = ["all"]
+  metrics       = ["all"]
+}
+create_log_sa = true
+
+tags = {
+  "tier" = "k8s"
+}

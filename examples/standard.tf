@@ -3,7 +3,7 @@ provider "azurerm" {
 }
 
 module "mysql_example" {
-  source = "git::https://github.com/canada-ca-terraform-modules/terraform-azurerm-flex-mysql.git?ref=v4.0.0"
+  source = "git::https://github.com/canada-ca-terraform-modules/terraform-azurerm-flex-mysql.git?ref=v0.0.1"
 
   name = "mysqlservername"
   databases = {
@@ -14,41 +14,28 @@ module "mysql_example" {
   }
 
   administrator_login    = "mysqladmin"
-  administrator_password = "mySql1313!"
+  administrator_password = "mySql1313"
 
-  sku_name       = "GP_Standard_D2ds_v4"
-  storagesize_gb = 20
+  sku_name       = "GP_Standard_D4ds_v4"
+  mysql_version  = "8.0.21"
+  storagesize_gb = 512
+  iops           = 4000
 
   location       = "canadacentral"
-  resource_group = "Test"
+  resource_group = "mysql-dev-rg"
 
   ip_rules       = []
   firewall_rules = []
 
-  # Needs to be disabled until the following issue is resolved: https://github.com/MicrosoftDocs/azure-docs/issues/32068
-  # diagnostics = {
-  #   destination   = ""
-  #   eventhub_name = ""
-  #   logs          = ["all"]
-  #   metrics       = ["all"]
-  # }
+  diagnostics = {
+    destination   = ""
+    eventhub_name = ""
+    logs          = ["all"]
+    metrics       = ["all"]
+  }
 
   tags = {
     "tier" = "k8s"
   }
-
-  # The variables required for vnet integration.  
-  #subnet_id           = ""
-  #private_dns_zone_id = ""
-
-  ######################################################################
-  # kv_pointer_enable (pointers in key vault for secrets state)
-  # => ``true` then state from key vault is used for creation
-  # => ``false` then state from terraform is used for creation (default)
-  ######################################################################
-  # kv_pointer_enable            = false
-  # kv_pointer_name              = "kvpointername"
-  # kv_pointer_rg                = "kvpointerrg"
-  # kv_pointer_sqladmin_password = "sqlhstsvc"
 
 }

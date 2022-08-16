@@ -1,7 +1,15 @@
 # Storage Accounts
 
+########################
+### Storage Accounts ###
+########################
+
+# Manages an Azure Storage Account.
+#
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account
+#
 resource "azurerm_storage_account" "mysql" {
-  count = !contains(local.diag_resource_list, "Microsoft.Storage") ? 1 : 0
+  count = var.create_log_sa ? 1 : 0
 
   name                            = substr("${replace(var.name, "-", "")}mysql", 0, 24)
   location                        = var.location
@@ -30,10 +38,18 @@ resource "azurerm_storage_account" "mysql" {
   }
 }
 
+#########################
+### Storage Container ###
+#########################
+
+# Manages a Container within an Azure Storage Account.
+#
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container
+#
 resource "azurerm_storage_container" "mysql" {
-  count = !contains(local.diag_resource_list, "Microsoft.Storage") ? 1 : 0
+  count = var.create_log_sa ? 1 : 0
 
   name                  = "${replace(var.name, "-", "")}mysql"
-  storage_account_name  = azurerm_storage_account.mysql[0].name
+  storage_account_name  = azurerm_storage_account.mysql[count.index].name
   container_access_type = "private"
 }
