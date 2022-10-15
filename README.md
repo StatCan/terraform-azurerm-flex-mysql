@@ -8,8 +8,8 @@ Creates a MySQL instance using the Azure Database for MySQL - Flexible Server.
 
 ## Dependencies
 
-- Terraform v0.14.x +
-- Terraform AzureRM Provider 2.5 +
+- Terraform v1.0.0+
+- Terraform AzureRM Provider 3.0.0+
 
 ## Usage
 

@@ -3,7 +3,7 @@ provider "azurerm" {
 }
 
 module "mysql_example" {
-  source = "git::https://github.com/canada-ca-terraform-modules/terraform-azurerm-flex-mysql.git?ref=v0.0.1"
+  source = "git::https://github.com/canada-ca-terraform-modules/terraform-azurerm-flex-mysql.git?ref=main"
 
   name = "mysqlservername"
   databases = {
@@ -39,3 +39,4 @@ module "mysql_example" {
   }
 
 }
+
