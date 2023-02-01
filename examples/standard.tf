@@ -56,4 +56,9 @@ module "mysql_example" {
   tags = {
     "tier" = "k8s"
   }
+
+  providers = {
+    azurerm                   = azurerm
+    azurerm.dns_zone_provider = azurerm.dns_zone_provider
+  }
 }

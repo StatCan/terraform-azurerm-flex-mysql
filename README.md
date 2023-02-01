@@ -72,3 +72,4 @@ Examples for this module along with various configurations can be found in the [
 | ---------- | ------- | ---------------------------------------------------- |
 | 2022-06-01 | v0.1.0  | Initial commit                                       |
 | 2023-02-01 | v0.2.0  | Standards alignment and Customer Managed Key Support |
+| 2023-02-01 | v0.2.1  | Missing providers block in `examples/standard.tf`    |
