@@ -1,4 +1,17 @@
-# Azure Database for MySQL - Flexible Server
+##############################
+### User Assigned Identity ###
+##############################
+
+# Manages a User Assigned Identity.
+#
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity
+#
+resource "azurerm_user_assigned_identity" "mysql" {
+  name                = "${var.name}-db-msi"
+  resource_group_name = var.resource_group
+  location            = var.location
+  tags                = var.tags
+}
 
 ###############################
 ### Managed MySQL for Azure ###
@@ -26,6 +39,11 @@ resource "azurerm_mysql_flexible_server" "mysql" {
     auto_grow_enabled = true
     iops              = var.iops
     size_gb           = var.storagesize_gb
+  }
+
+  customer_managed_key {
+    key_vault_key_id                  = azurerm_key_vault_key.cmk.id
+    primary_user_assigned_identity_id = azurerm_user_assigned_identity.mysql.id
   }
 
   backup_retention_days        = 35

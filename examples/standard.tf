@@ -1,11 +1,32 @@
+#####################
+### Prerequisites ###
+#####################
+
 provider "azurerm" {
   features {}
 }
 
+provider "azurerm" {
+  features {}
+  alias = "dns_zone_provider"
+}
+
+###############################
+### Managed MySQL for Azure ###
+###############################
+
+# Manages a MySQL Flexible Server.
+#
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_flexible_server
+#
 module "mysql_example" {
   source = "git::https://github.com/canada-ca-terraform-modules/terraform-azurerm-flex-mysql.git?ref=main"
 
   name = "mysqlservername"
+
+  location       = "canadacentral"
+  resource_group = "mysql-dev-rg"
+
   databases = {
     mysqlservername1 = { collation = "utf8_unicode_ci" },
     mysqlservername2 = { chartset = "utf8" },
@@ -16,13 +37,11 @@ module "mysql_example" {
   administrator_login    = "mysqladmin"
   administrator_password = "mySql1313"
 
-  sku_name       = "GP_Standard_D4ds_v4"
-  mysql_version  = "8.0.21"
+  sku_name      = "GP_Standard_D4ds_v4"
+  mysql_version = "8.0.21"
+
   storagesize_gb = 512
   iops           = 4000
-
-  location       = "canadacentral"
-  resource_group = "mysql-dev-rg"
 
   ip_rules       = []
   firewall_rules = []
@@ -37,6 +56,4 @@ module "mysql_example" {
   tags = {
     "tier" = "k8s"
   }
-
 }
-
