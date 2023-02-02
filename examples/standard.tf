@@ -20,7 +20,7 @@ provider "azurerm" {
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_flexible_server
 #
 module "mysql_example" {
-  source = "git::https://github.com/canada-ca-terraform-modules/terraform-azurerm-flex-mysql.git?ref=main"
+  source = "../"
 
   name = "mysqlservername"
 
