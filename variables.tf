@@ -76,7 +76,7 @@ variable "tags" {
 ### Networking ###
 ##################
 
-variable "subnet_id" {
+variable "delegated_subnet_id" {
   description = "The subnet where you want the database created. The subnet must be delegated to Microsoft.DBforMySQL/flexibleServers."
   type        = string
   default     = null
@@ -85,6 +85,45 @@ variable "subnet_id" {
 variable "private_dns_zone_id" {
   description = "The ID of the private DNS zone to create the MySQL Flexible Server. The private DNS zone must end with the suffix .mysql.database.azure.com."
   type        = string
+  default     = null
+}
+
+variable "kv_private_endpoints" {
+  description = "The name of an existing subnet to deploy and allocate private IP addresses from a virtual network. It is used to create a private endpoint between the keyvault the module creates and the specified subnet."
+  type = list(object({
+    subnet_id        = optional(string) // mutually exclusive with the vnet_name, vnet_rg_name and subnet_name fields
+    vnet_name        = optional(string)
+    vnet_rg_name     = optional(string)
+    subnet_name      = optional(string)
+    dns_zone_rg_name = optional(string, "network-management-rg")
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for entry in var.kv_private_endpoints :
+      (entry.subnet_id != null && entry.vnet_name == null && entry.vnet_rg_name == null && entry.subnet_name == null) ||
+      (entry.subnet_id != null && can(regex("^/subscription/(.+)/resourceGroups/(.+)/providers/Microsoft.Network/virtualNetworks/(.+)/subnets/(.+)", entry.subnet_id))) ||
+      (entry.subnet_id == null && entry.vnet_name != null && entry.vnet_rg_name != null && entry.subnet_name != null)
+    ])
+    error_message = "Either set the subnet_id field or the vnet_name, vnet_rg_name and subnet_name fields."
+  }
+}
+
+variable "public_network_access_enabled" {
+  description = "(Required) Whether or not public network access is allowed."
+  default     = false
+}
+
+variable "kv_subnet_ids" {
+  description = "The subnets for the key vault."
+  type        = list(string)
+  default     = null
+}
+
+variable "sa_subnet_ids" {
+  description = "The subnets for the storage account."
+  type        = list(string)
   default     = null
 }
 
@@ -103,7 +142,7 @@ variable "diagnostics" {
   default = null
 }
 
-variable "create_log_sa" {
+variable "sa_create_log" {
   description = "Creates a storage account to be used for diagnostics logging of the PostgreSQL database created if the variable is set to `true`."
   type        = bool
   default     = false
@@ -143,22 +182,12 @@ variable "kv_pointer_sqladmin_password" {
 ### Parameters ###
 ##################
 
-variable "innodb_buffer_pool_size" {
-  description = "The size in bytes of the buffer pool, the memory area where InnoDB caches table and index data."
-  default     = 12884901888
-}
-
-variable "max_allowed_packet" {
-  description = "The maximum size of one packet or any generated/intermediate string."
-  default     = 536870912
-}
-
-variable "table_definition_cache" {
-  description = "The size of the table_definition_cache."
-  default     = 5000
-}
-
-variable "table_open_cache" {
-  description = "The size of the table_open_cache."
-  default     = 5000
+variable "mysql_configurations" {
+  type = map(string)
+  default = {
+    innodb_buffer_pool_size = "12884901888"
+    max_allowed_packet      = "536870912"
+    table_definition_cache  = "5000"
+    table_open_cache        = "5000"
+  }
 }

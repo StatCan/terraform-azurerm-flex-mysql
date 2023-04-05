@@ -26,7 +26,7 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   location            = var.location
   resource_group_name = var.resource_group
 
-  delegated_subnet_id = var.subnet_id
+  delegated_subnet_id = var.delegated_subnet_id
   private_dns_zone_id = var.private_dns_zone_id
 
   administrator_login    = var.administrator_login
@@ -34,6 +34,11 @@ resource "azurerm_mysql_flexible_server" "mysql" {
 
   sku_name = var.sku_name
   version  = var.mysql_version
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.mysql.id]
+  }
 
   storage {
     auto_grow_enabled = true
@@ -92,42 +97,10 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "mysql" {
 #
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_flexible_server_configuration
 #
-resource "azurerm_mysql_flexible_server_configuration" "max_allowed_packet" {
-  name                = "max_allowed_packet"
+resource "azurerm_mysql_flexible_server_configuration" "mysql" {
+  for_each            = var.mysql_configurations
+  name                = each.key
   resource_group_name = var.resource_group
   server_name         = azurerm_mysql_flexible_server.mysql.name
-  value               = var.max_allowed_packet
-}
-
-# Sets a MySQL Flexible Server Configuration value on a MySQL Flexible Server.
-#
-# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_flexible_server_configuration
-#
-resource "azurerm_mysql_flexible_server_configuration" "innodb_buffer_pool_size" {
-  name                = "innodb_buffer_pool_size"
-  resource_group_name = var.resource_group
-  server_name         = azurerm_mysql_flexible_server.mysql.name
-  value               = var.innodb_buffer_pool_size
-}
-
-# Sets a MySQL Flexible Server Configuration value on a MySQL Flexible Server.
-#
-# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_flexible_server_configuration
-#
-resource "azurerm_mysql_flexible_server_configuration" "table_definition_cache" {
-  name                = "table_definition_cache"
-  resource_group_name = var.resource_group
-  server_name         = azurerm_mysql_flexible_server.mysql.name
-  value               = var.table_definition_cache
-}
-
-# Sets a MySQL Flexible Server Configuration value on a MySQL Flexible Server.
-#
-# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_flexible_server_configuration
-#
-resource "azurerm_mysql_flexible_server_configuration" "table_open_cache" {
-  name                = "table_open_cache"
-  resource_group_name = var.resource_group
-  server_name         = azurerm_mysql_flexible_server.mysql.name
-  value               = var.table_open_cache
+  value               = each.value
 }

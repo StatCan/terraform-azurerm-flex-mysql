@@ -22,8 +22,7 @@ provider "azurerm" {
 module "mysql_example" {
   source = "../"
 
-  name = "mysqlservername"
-
+  name           = "mysqlservername"
   location       = "canadacentral"
   resource_group = "mysql-dev-rg"
 
@@ -52,6 +51,8 @@ module "mysql_example" {
     logs          = ["all"]
     metrics       = ["all"]
   }
+  sa_create_log = true
+  sa_subnet_ids = []
 
   tags = {
     "tier" = "k8s"
