@@ -41,6 +41,11 @@ variable "name" {
   description = "The name of the MySQL Flexible Server."
 }
 
+variable "storage_account_name" {
+  description = "Name of the storage account used for diagnostics (optional, if not provided the name is auto-generated)."
+  default     = null
+}
+
 variable "mysql_version" {
   description = "The version of the MySQL Flexible Server."
   default     = "8.0.21"
