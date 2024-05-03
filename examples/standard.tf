@@ -52,9 +52,9 @@ locals {
 module "mysql_example" {
   source = "../"
 
-  name           = "mysqlservername"
-  location       = "canadacentral"
-  resource_group = "mysql-dev-rg"
+  name                = "mysqlservername"
+  location            = "canadacentral"
+  resource_group_name = "mysql-dev-rg"
 
   databases = {
     mysqlservername1 = { collation = "utf8_unicode_ci" },
@@ -99,6 +99,8 @@ module "mysql_example" {
   sa_create_log = true
   # sa_subnet_ids = concat([data.azurerm_subnet.database.id], local.subnet_ids)
 
+  environment = "dev"
+  project     = "mysql"
   tags = {
     "tier" = "k8s"
   }

@@ -27,7 +27,7 @@ variable "firewall_rules" {
 }
 
 variable "geo_redundant_backup_enabled" {
-  description = "Is Geo-Redundant backup enabled on the PostgreSQL Flexible Server."
+  description = "Is Geo-Redundant backup enabled on the MySQL Flexible Server."
   type        = bool
   default     = false
 }
@@ -51,7 +51,7 @@ variable "mysql_version" {
   default     = "8.0.21"
 }
 
-variable "resource_group" {
+variable "resource_group_name" {
   description = "The name of the resource group in which to create the MySQL Flexible Server."
 }
 
@@ -77,6 +77,14 @@ variable "tags" {
   }
 }
 
+variable "project" {
+  description = "Name of client project"
+}
+
+variable "environment" {
+  description = "The environment used for keyvault access."
+}
+
 ##################
 ### Networking ###
 ##################
@@ -94,24 +102,28 @@ variable "private_dns_zone_id" {
 }
 
 variable "kv_private_endpoints" {
-  description = "The name of an existing subnet to deploy and allocate private IP addresses from a virtual network. It is used to create a private endpoint between the keyvault the module creates and the specified subnet."
+  description = "The information required to create a private endpoint for the Key Vault."
   type = list(object({
-    subnet_id        = optional(string) // mutually exclusive with the vnet_name, vnet_rg_name and subnet_name fields
-    vnet_name        = optional(string)
-    vnet_rg_name     = optional(string)
-    subnet_name      = optional(string)
-    dns_zone_rg_name = optional(string, "network-management-rg")
+    sub_resource_name   = optional(string, "vault")
+    subnet_id           = string
+    private_dns_zone_id = string
   }))
   default = []
 
   validation {
     condition = alltrue([
       for entry in var.kv_private_endpoints :
-      (entry.subnet_id != null && entry.vnet_name == null && entry.vnet_rg_name == null && entry.subnet_name == null) ||
-      (entry.subnet_id != null && can(regex("^/subscription/(.+)/resourceGroups/(.+)/providers/Microsoft.Network/virtualNetworks/(.+)/subnets/(.+)", entry.subnet_id))) ||
-      (entry.subnet_id == null && entry.vnet_name != null && entry.vnet_rg_name != null && entry.subnet_name != null)
+      contains(["vault"], entry.sub_resource_name)
     ])
-    error_message = "Either set the subnet_id field or the vnet_name, vnet_rg_name and subnet_name fields."
+    error_message = "Invalid sub_resource_name within var.kv_private_endpoints. Expected the name to be 'vault'."
+  }
+
+  validation {
+    condition = alltrue([
+      for entry in var.kv_private_endpoints :
+      element(split("/", entry.private_dns_zone_id), 8) == "privatelink.vaultcore.azure.net"
+    ])
+    error_message = "Invalid private_dns_zone_id attribute within var.kv_private_endpoints. Expected a Private DNS Zone with the name 'privatelink.vaultcore.azure.net'"
   }
 }
 
@@ -148,7 +160,7 @@ variable "diagnostics" {
 }
 
 variable "sa_create_log" {
-  description = "Creates a storage account to be used for diagnostics logging of the PostgreSQL database created if the variable is set to `true`."
+  description = "Creates a storage account to be used for diagnostics logging of the MySQL database created if the variable is set to `true`."
   type        = bool
   default     = false
 }
@@ -190,9 +202,29 @@ variable "kv_pointer_sqladmin_password" {
 variable "mysql_configurations" {
   type = map(string)
   default = {
+    audit_log_enabled       = "ON"
+    audit_log_events        = "CONNECTION_V2, ADMIN"
+    max_connect_errors      = "20"
     innodb_buffer_pool_size = "12884901888"
     max_allowed_packet      = "536870912"
     table_definition_cache  = "5000"
     table_open_cache        = "5000"
+  }
+}
+
+variable "active_directory_administrator" {
+  type = list(object({
+    object_id = optional(string)
+    login     = optional(string)
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for entry in var.active_directory_administrator :
+      (entry.object_id != null) &&
+      (entry.login != null)
+    ])
+    error_message = "Invalid active_directory_administrator configuration. Make sure object_id and login are not null"
   }
 }
