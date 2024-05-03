@@ -8,7 +8,7 @@
 #
 resource "azurerm_user_assigned_identity" "mysql" {
   name                = "${var.name}-db-msi"
-  resource_group_name = var.resource_group
+  resource_group_name = var.resource_group_name
   location            = var.location
   tags                = var.tags
 }
@@ -24,7 +24,7 @@ resource "azurerm_user_assigned_identity" "mysql" {
 resource "azurerm_mysql_flexible_server" "mysql" {
   name                = var.name
   location            = var.location
-  resource_group_name = var.resource_group
+  resource_group_name = var.resource_group_name
 
   delegated_subnet_id = var.delegated_subnet_id
   private_dns_zone_id = var.private_dns_zone_id
@@ -72,7 +72,7 @@ resource "azurerm_mysql_flexible_server" "mysql" {
 resource "azurerm_mysql_flexible_database" "mysql" {
   for_each            = var.databases
   server_name         = azurerm_mysql_flexible_server.mysql.name
-  resource_group_name = var.resource_group
+  resource_group_name = var.resource_group_name
 
   name      = each.key
   charset   = lookup(each.value, "charset", "utf8")
@@ -86,7 +86,7 @@ resource "azurerm_mysql_flexible_database" "mysql" {
 resource "azurerm_mysql_flexible_server_firewall_rule" "mysql" {
   for_each            = toset(var.firewall_rules)
   server_name         = azurerm_mysql_flexible_server.mysql.name
-  resource_group_name = var.resource_group
+  resource_group_name = var.resource_group_name
 
   name             = replace(each.key, ".", "-")
   start_ip_address = each.key
@@ -100,7 +100,17 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "mysql" {
 resource "azurerm_mysql_flexible_server_configuration" "mysql" {
   for_each            = var.mysql_configurations
   name                = each.key
-  resource_group_name = var.resource_group
+  resource_group_name = var.resource_group_name
   server_name         = azurerm_mysql_flexible_server.mysql.name
   value               = each.value
+}
+
+resource "azurerm_mysql_flexible_server_active_directory_administrator" "this" {
+  count = length(var.active_directory_administrator)
+
+  server_id   = azurerm_mysql_flexible_server.mysql.id
+  identity_id = azurerm_user_assigned_identity.mysql.id
+  login       = var.active_directory_administrator[count.index].login
+  tenant_id   = data.azurerm_client_config.current.tenant_id
+  object_id   = var.active_directory_administrator[count.index].object_id
 }
