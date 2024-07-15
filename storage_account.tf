@@ -36,6 +36,19 @@ resource "azurerm_storage_account" "mysql" {
   }
 }
 
+resource "azurerm_role_assignment" "sa" {
+  count = var.sa_create_log ? 1 : 0
+
+  description          = "${var.name}-ra"
+  scope                = azurerm_storage_account.mysql[0].id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_mysql_flexible_server.mysql.id
+
+  depends_on = [
+    azurerm_storage_account.mysql
+  ]
+}
+
 #########################
 ### Storage Container ###
 #########################
@@ -48,6 +61,10 @@ resource "azurerm_storage_container" "mysql" {
   count = var.sa_create_log ? 1 : 0
 
   name                  = "${replace(var.name, "-", "")}mysql"
-  storage_account_name  = azurerm_storage_account.mysql[count.index].name
+  storage_account_name  = azurerm_storage_account.mysql[0].name
   container_access_type = "private"
+
+  depends_on = [
+    azurerm_role_assignment.sa
+  ]
 }

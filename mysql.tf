@@ -63,6 +63,10 @@ resource "azurerm_mysql_flexible_server" "mysql" {
       zone
     ]
   }
+  depends_on = [
+    module.enc_key_vault,
+    azurerm_key_vault_key.cmk
+  ]
 }
 
 # Manages a MySQL Database within a MySQL Flexible Server

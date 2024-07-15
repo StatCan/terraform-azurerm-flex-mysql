@@ -21,17 +21,23 @@ provider "azurerm" {
 #   provider            = azurerm.dns_zone_provider
 # }
 
-# data "azurerm_subnet" "back" {
-#   name                 = "back-dev"
-#   resource_group_name  = "mysql-dev-rg"
-#   virtual_network_name = "mysql-dev-vnet"
-# }
+data "azurerm_private_dns_zone" "kv" {
+  provider            = azurerm.dns_zone_provider
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = "network-management-rg"
+}
 
-# data "azurerm_subnet" "database" {
-#   name                 = "mysql-dev"
-#   resource_group_name  = "mysql-dev-rg"
-#   virtual_network_name = "mysql-dev-vnet"
-# }
+data "azurerm_subnet" "back" {
+  name                 = "back-dev"
+  resource_group_name  = "mysql-dev-rg"
+  virtual_network_name = "mysql-dev-vnet"
+}
+
+data "azurerm_subnet" "database" {
+  name                 = "mysql-dev"
+  resource_group_name  = "mysql-dev-rg"
+  virtual_network_name = "mysql-dev-vnet"
+}
 
 ##############
 ### Locals ###
@@ -89,15 +95,16 @@ module "mysql_example" {
 
   public_network_access_enabled = false
 
-  # kv_subnet_ids                 = concat([data.azurerm_subnet.database.id], local.subnet_ids)
-  # kv_private_endpoints = [
-  #   {
-  #     subnet_id = data.azurerm_subnet.back.id
-  #   }
-  # ]
+  kv_subnet_ids = local.subnet_ids
+  kv_private_endpoints = [
+    {
+      subnet_id           = data.azurerm_subnet.back.id,
+      private_dns_zone_id = data.azurerm_private_dns_zone.kv.id
+    }
+  ]
 
   sa_create_log = true
-  # sa_subnet_ids = concat([data.azurerm_subnet.database.id], local.subnet_ids)
+  sa_subnet_ids = local.subnet_ids
 
   environment = "dev"
   project     = "mysql"
