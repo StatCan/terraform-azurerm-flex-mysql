@@ -98,7 +98,8 @@ resource "azurerm_key_vault_access_policy" "runner_manage_keys" {
     "Purge",
     "Recover",
     "Update",
-    "GetRotationPolicy"
+    "GetRotationPolicy",
+    "List"
   ]
 
   depends_on = [
