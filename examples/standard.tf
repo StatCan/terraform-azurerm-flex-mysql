@@ -15,11 +15,11 @@ provider "azurerm" {
 ### Data ###
 ############
 
-# data "azurerm_private_dns_zone" "flex_dns_zone" {
-#   name                = "privatelink.mysql.database.azure.com"
-#   resource_group_name = "mysql-dev-rg"
-#   provider            = azurerm.dns_zone_provider
-# }
+data "azurerm_private_dns_zone" "flex_dns_zone" {
+  name                = "privatelink.mysql.database.azure.com"
+  resource_group_name = "mysql-dev-rg"
+  provider            = azurerm.dns_zone_provider
+}
 
 data "azurerm_private_dns_zone" "kv" {
   provider            = azurerm.dns_zone_provider
@@ -33,7 +33,7 @@ data "azurerm_subnet" "back" {
   virtual_network_name = "mysql-dev-vnet"
 }
 
-data "azurerm_subnet" "database" {
+data "azurerm_subnet" "mysql" {
   name                 = "mysql-dev"
   resource_group_name  = "mysql-dev-rg"
   virtual_network_name = "mysql-dev-vnet"
@@ -46,6 +46,22 @@ data "azurerm_subnet" "database" {
 locals {
   subnet_ids = []
 }
+
+
+#####################
+# These variables can have their values set as CI/CD Variables with the names TF_VAR_MYSQL_Admin_Username and TF_VAR_MYSQL_Admin_Password.
+
+variable "MYSQL_Admin_Username" {
+  type        = string
+  description = "The Administrator Login for the MYSQL Flexible Server."
+}
+
+variable "MYSQL_Admin_Password" {
+  type        = string
+  sensitive   = true
+  description = "The Password associated with the administrator_login for the MYSQL Flexible Server."
+}
+
 
 ###############################
 ### Managed MySQL for Azure ###
@@ -69,8 +85,8 @@ module "mysql_example" {
     mysqlservername4 = {}
   }
 
-  administrator_login    = "mysqladmin"
-  administrator_password = "mySql1313"
+  administrator_login    = var.MYSQL_Admin_Username # See above variable definitions
+  administrator_password = var.MYSQL_Admin_Password
 
   geo_redundant_backup_enabled = false
 
@@ -86,14 +102,10 @@ module "mysql_example" {
   diagnostics = {
     destination   = ""
     eventhub_name = ""
-    logs          = ["all"]
-    metrics       = ["all"]
   }
 
-  # delegated_subnet_id = data.azurerm_subnet.database.id
-  # private_dns_zone_id = data.azurerm_private_dns_zone.flex_dns_zone.id
-
-  public_network_access_enabled = false
+  delegated_subnet_id = data.azurerm_subnet.mysql.id
+  private_dns_zone_id = data.azurerm_private_dns_zone.flex_dns_zone.id
 
   kv_subnet_ids = local.subnet_ids
   kv_private_endpoints = [
