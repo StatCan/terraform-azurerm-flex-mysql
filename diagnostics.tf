@@ -23,20 +23,10 @@ resource "azurerm_monitor_diagnostic_setting" "mysql_server" {
 
     content {
       category = enabled_log.value
-      retention_policy {
-        enabled = contains(local.parsed_diag.log, "all") || contains(local.parsed_diag.log, enabled_log)
-      }
     }
   }
 
-  dynamic "metric" {
-    for_each = data.azurerm_monitor_diagnostic_categories.mysql_server[0].metrics
-
-    content {
-      category = metric.value
-      retention_policy {
-        enabled = contains(local.parsed_diag.metric, "all") || contains(local.parsed_diag.metric, metric)
-      }
-    }
+  enabled_metric {
+    category = "AllMetrics"
   }
 }

@@ -16,7 +16,7 @@ resource "azurerm_storage_account" "mysql" {
   account_tier                    = "Standard"
   account_replication_type        = "LRS"
   access_tier                     = "Hot"
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   allow_nested_items_to_be_public = false
   min_tls_version                 = "TLS1_2"
 
@@ -61,7 +61,7 @@ resource "azurerm_storage_container" "mysql" {
   count = var.sa_create_log ? 1 : 0
 
   name                  = "${replace(var.name, "-", "")}mysql"
-  storage_account_name  = azurerm_storage_account.mysql[0].name
+  storage_account_id    = azurerm_storage_account.mysql[0].id
   container_access_type = "private"
 
   depends_on = [

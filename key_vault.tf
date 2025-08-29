@@ -7,7 +7,7 @@
 # https://gitlab.k8s.cloud.statcan.ca/cloudnative/platform/terraform/terraform-azure-key-vault.git
 #
 module "enc_key_vault" {
-  source = "git::https://gitlab.k8s.cloud.statcan.ca/cloudnative/platform/terraform/terraform-azure-key-vault.git?ref=v4.0.0"
+  source = "git::https://gitlab.k8s.cloud.statcan.ca/cloudnative/platform/terraform/terraform-azure-key-vault.git?ref=v5.0.0"
 
   azure_resource_attributes = {
     project     = var.project
@@ -23,7 +23,7 @@ module "enc_key_vault" {
   purge_protection_enabled   = true
   soft_delete_retention_days = 90
 
-  public_network_access_enabled = var.public_network_access_enabled
+  public_network_access_enabled = var.kv_public_network_access_enabled
   default_network_access_action = "Deny"
   service_endpoint_subnet_ids   = var.kv_subnet_ids == null ? [] : var.kv_subnet_ids
   ip_rules                      = var.ip_rules
