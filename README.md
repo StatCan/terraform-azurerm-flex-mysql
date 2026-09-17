@@ -13,20 +13,20 @@ Examples for this module along with various configurations can be found in the [
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5.7 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.26 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.26 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.41.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 5.5.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_enc_key_vault"></a> [enc\_key\_vault](#module\_enc\_key\_vault) | git::https://gitlab.k8s.cloud.statcan.ca/cloudnative/platform/terraform/terraform-azure-key-vault.git | v5.0.0 |
+| <a name="module_enc_key_vault"></a> [enc\_key\_vault](#module\_enc\_key\_vault) | git::https://gitlab.k8s.cloud.statcan.ca/cloudnative/platform/terraform/terraform-azure-key-vault.git | v6.0.0 |
 
 ## Resources
 
@@ -74,7 +74,7 @@ Examples for this module along with various configurations can be found in the [
 | <a name="input_kv_subnet_ids"></a> [kv\_subnet\_ids](#input\_kv\_subnet\_ids) | The subnets for the key vault. | `list(string)` | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | Specifies the supported Azure location where the resource exists. | `string` | `"canadacentral"` | no |
 | <a name="input_mysql_configurations"></a> [mysql\_configurations](#input\_mysql\_configurations) | n/a | `map(string)` | <pre>{<br/>  "audit_log_enabled": "ON",<br/>  "audit_log_events": "CONNECTION_V2, ADMIN, DDL, DCL, DML_NONSELECT",<br/>  "innodb_buffer_pool_size": "12884901888",<br/>  "max_allowed_packet": "536870912",<br/>  "max_connect_errors": "20",<br/>  "table_definition_cache": "5000",<br/>  "table_open_cache": "5000"<br/>}</pre> | no |
-| <a name="input_mysql_version"></a> [mysql\_version](#input\_mysql\_version) | The version of the MySQL Flexible Server. | `string` | `"8.0.21"` | no |
+| <a name="input_mysql_version"></a> [mysql\_version](#input\_mysql\_version) | The version of the MySQL Flexible Server. Currently supported versions 8.0.21, or 8.4 | `string` | `"8.0.21"` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the MySQL Flexible Server. | `string` | n/a | yes |
 | <a name="input_private_dns_zone_id"></a> [private\_dns\_zone\_id](#input\_private\_dns\_zone\_id) | The ID of the private DNS zone to create the MySQL Flexible Server. The private DNS zone must end with the suffix .mysql.database.azure.com. | `string` | `null` | no |
 | <a name="input_project"></a> [project](#input\_project) | Name of client project | `string` | n/a | yes |
