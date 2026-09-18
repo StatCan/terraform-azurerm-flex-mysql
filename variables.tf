@@ -53,8 +53,14 @@ variable "storage_account_name" {
 
 variable "mysql_version" {
   type        = string
-  description = "The version of the MySQL Flexible Server."
+  description = "The version of the MySQL Flexible Server. Currently supported versions 8.0.21, or 8.4"
   default     = "8.0.21"
+  validation {
+    condition     = contains(["8.0.21", "8.4"], var.mysql_version)
+    error_message = "The version of MySQL Flexible Server specified must be one of the currently supported versions 8.0.21, or 8.4."
+  }
+
+
 }
 
 variable "resource_group_name" {
